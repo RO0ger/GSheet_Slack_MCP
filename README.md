@@ -8,17 +8,16 @@ See `.env.example` for the full list of keys. The important ones are:
 - `GOOGLE_SHEETS_SPREADSHEET_ID`
 - `GOOGLE_APPLICATION_CREDENTIALS` (either a single-line JSON or a filesystem path to a JSON file that is not committed)
 
-# Grain-Slack MCP
+# GSheet Slack MCP Server
 
-This project is a TypeScript-based application that integrates with Google Sheets and Slack, utilizing Google's Generative AI. It appears to be a backend service that can be extended to perform various tasks based on data from Google Sheets and interactions within Slack.
+This is a headless MCP server written in TypeScript that integrates with Google Sheets and Slack via MCP tools. No HTML or frontend components are included.
 
 ## Features
 
-- **Express Server**: A simple server setup using Express.
-- **Google Sheets Integration**: Includes tools to interact with Google Sheets API.
-- **Slack Integration**: Contains modules for interacting with the Slack API.
-- **Gemini AI**: Leverages Google's Gemini for generative AI capabilities.
-- **TypeScript**: The entire codebase is in TypeScript, providing type safety.
+- **MCP Server** using `@modelcontextprotocol/sdk`
+- **Google Sheets Integration** for reading/updating hypotheses
+- **Slack Notifications** via webhook
+- **TypeScript** with strict settings
 
 ## Prerequisites
 
@@ -60,8 +59,7 @@ This project is a TypeScript-based application that integrates with Google Sheet
 
 ## Available Scripts
 
--   `npm run clean`: Removes the `dist` directory.
--   `npm run build`: Compiles the TypeScript code and copies necessary assets to the `dist` directory.
--   `npm run start`: Starts the server from the `dist` directory.
--   `npm run dev`: Builds and starts the server in one command.
--   `npm test`: (Not yet implemented)
+- `npm run clean`: Removes the `dist` directory
+- `npm run build`: Compiles the TypeScript code and copies prompts to `dist`
+- `npm run start`: Starts the server from the `dist` directory
+- `npm run dev`: Builds and starts the server in one command

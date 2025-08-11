@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && tsc && mkdir -p dist/prompts && cp -r src/prompts/ dist/prompts && cp -r src/public dist/public",
+    "build": "npm run clean && tsc && mkdir -p dist/prompts && cp -r src/prompts/ dist/prompts",
     "start": "node dist/server.js",
     "dev": "npm run build && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
