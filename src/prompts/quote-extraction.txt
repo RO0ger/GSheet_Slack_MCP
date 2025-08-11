@@ -1,0 +1,17 @@
+Extract relevant quotes from transcript for hypothesis validation.
+
+HYPOTHESIS: {{hypothesis_description}}
+TEST QUESTIONS: {{test_questions}}
+
+TRANSCRIPT: {{transcript}}
+
+Return ONLY valid JSON array of quotes. Each quote must have:
+{
+  "text": "exact quote text",
+  "speaker": "speaker name or 'Unknown'", 
+  "timestamp": "timestamp or 'Unknown'",
+  "relevance_score": number between 7-10,
+  "support_type": "VALIDATES" | "CONTRADICTS" | "NEUTRAL"
+}
+
+Only include quotes with relevance_score >= 7. Maximum 5 quotes. 

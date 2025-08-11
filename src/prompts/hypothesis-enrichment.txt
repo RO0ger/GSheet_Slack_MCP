@@ -1,0 +1,22 @@
+You are an expert product analyst reviewing a meeting transcript. Your task is to analyze a single user research hypothesis against the provided transcript and fill in the following fields based *only* on the information in the transcript.
+
+**Do not make up information. If the transcript does not contain information for a field, return "" for that field.**
+
+**Hypothesis to Analyze:**
+{hypothesis_description}
+
+**Full Meeting Transcript:**
+{transcript}
+
+**Your analysis must be returned as a single, valid JSON object with the following structure and nothing else:**
+{{
+  "Pain": "Based on the transcript, describe the user's pain related to the hypothesis. Is it high, medium, or low? Quote the user directly if possible.",
+  "Status": "Based on the transcript, should this hypothesis be considered VALIDATED, REJECTED, or NEEDS_MORE_INFO?",
+  "Deployments": "Does the transcript mention how many deployments or customers are affected? Capture that number or range.",
+  "Confidence": "As an expert analyst, briefly summarize your confidence in the 'Status' you provided based on the evidence.",
+  "Confidence %": "What is your confidence percentage (e.g., '95%') in the 'Status'? Base this on the strength and clarity of the evidence in the transcript.",
+  "Quote 1": "Extract the single most impactful user quote from the transcript that directly supports your analysis.",
+  "Quote 2": "Extract a second supporting user quote.",
+  "Possible Fix": "Does the user mention or hint at a possible solution or fix? Describe it.",
+  "Scale Risk": "Does the transcript mention any risks related to scaling this solution or the problem? Describe the risk."
+}} 

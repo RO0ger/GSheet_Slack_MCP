@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "grain-slack": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/absolute/path/to/your/project/dist/server.js"
+      ],
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "{}",
+        "GOOGLE_SHEETS_SPREADSHEET_ID": "",
+        "SLACK_WEBHOOK_URL": ""
+      }
+    }
+  }
+}

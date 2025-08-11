@@ -1,0 +1,16 @@
+Score the hypothesis on a scale of 0 to 10 based on the provided quotes.
+
+- A score of 8-10 means the quotes STRONGLY VALIDATE the hypothesis.
+- A score of 4-7 means the quotes are AMBIGUOUS or provide MIXED evidence.
+- A score of 0-3 means the quotes STRONGLY CONTRADICT the hypothesis.
+
+HYPOTHESIS: {{hypothesis_description}}
+QUOTES FOUND: {{quotes_json}}
+
+Return ONLY valid JSON with the following structure:
+{
+  "score": number from 0-10,
+  "confidence": number from 0-100 (how confident you are in your score),
+  "recommendation": "VALIDATE" | "REJECT" | "NEEDS_MORE_DATA" (based on the score ranges above),
+  "reasoning": "A concise, one-sentence explanation for the score."
+} 
