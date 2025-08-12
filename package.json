@@ -1,5 +1,5 @@
 {
-  "name": "grain-slack-mcp",
+  "name": "gsheet-mcp",
   "version": "1.0.0",
   "description": "",
   "main": "dist/server.js",

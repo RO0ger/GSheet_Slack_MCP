@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "grain-slack": {
+    "gsheet-mcp": {
       "type": "stdio",
       "command": "node",
       "args": [

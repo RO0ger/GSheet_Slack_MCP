@@ -11,7 +11,7 @@ import { sendSlackNotification } from './tools/slack-notification.js';
 
 // Create MCP server with proper capabilities
 const server = new McpServer(
-  { name: 'grain-slack-mcp', version: '3.0.0' },
+  { name: 'gsheet-mcp', version: '3.0.0' },
   { capabilities: { tools: {}, logging: {} } }
 );
 
@@ -101,7 +101,7 @@ server.registerTool(
 async function main() {
   try {
     logger.info('🚀 Starting MCP Server...', {
-      serverName: 'grain-slack-mcp',
+      serverName: 'gsheet-mcp',
       version: '3.0.0',
       nodeVersion: process.version
     });
