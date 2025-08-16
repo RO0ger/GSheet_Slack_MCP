@@ -1,39 +1,32 @@
-import type { HypothesisUpdate } from '../types/index.js';
 import { GoogleSheetsService } from '../services/google-sheets.js';
 import { config } from '../config/index.js';
+import { logger } from '../utils/logger.js';
 
 const googleSheetsService = new GoogleSheetsService(config.google);
 
 export async function updateHypotheses(
   hypothesis_id: string,
-  confidence_score: number,
-  reasoning: string,
-  relevant_quotes: string[],
-  status_recommendation: string
+  updates_json: string
 ): Promise<{ content: Array<{ type: string; text: string }>; isError?: boolean }>{
   try {
-    const updates: HypothesisUpdate = {
-      confidence: reasoning,
-      confidencePercent: confidence_score,
-      quote1: relevant_quotes[0] || '',
-      quote2: relevant_quotes[1] || ''
-    };
-
-    if (confidence_score >= 80) {
-      updates.status = 'VALIDATED';
-    } else if (confidence_score < 50) {
-      updates.status = 'NOT_VALIDATED';
+    let updates: Record<string, any>;
+    try {
+      updates = JSON.parse(updates_json);
+    } catch (error) {
+      throw new Error('Invalid JSON provided. Please provide a valid JSON string.');
     }
 
     await googleSheetsService.updateHypothesis(hypothesis_id, updates);
 
+    const updatedColumns = Object.keys(updates).join(', ');
     return {
       content: [{
         type: 'text',
-        text: `✅ Updated hypothesis ${hypothesis_id}: ${confidence_score}% confidence, status: ${updates.status || 'unchanged'}`
+        text: `✅ Successfully updated hypothesis ${hypothesis_id}. Columns updated: ${updatedColumns}`
       }]
     };
   } catch (error: any) {
+    logger.error(`Failed to update hypothesis ${hypothesis_id}:`, error);
     return {
       content: [{ type: 'text', text: `❌ Error updating hypothesis: ${error.message}` }],
       isError: true

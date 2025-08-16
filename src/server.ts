@@ -9,12 +9,16 @@ import { analyzeHypothesis } from './tools/analyze-hypothesis.js';
 import { updateHypotheses } from './tools/update-hypotheses.js';
 import { sendSlackNotification } from './tools/slack-notification.js';
 
-// Create MCP server with proper capabilities
 const server = new McpServer(
   { name: 'gsheet-mcp', version: '3.0.0' },
-  { capabilities: { tools: {}, logging: {} } }
+  { 
+    capabilities: { 
+      tools: {}, 
+      logging: {},
+      sampling: {} // Add this
+    } 
+  }
 );
-
 // Tool 1: Load hypotheses from Google Sheets
 server.registerTool(
   'gsheets_load_hypotheses',
@@ -44,7 +48,7 @@ server.registerTool(
   },
   async ({ hypothesis_id, transcript }) => {
     logger.info(`🔍 Analyzing hypothesis ${hypothesis_id} with Claude`);
-    const result = await analyzeHypothesis(server as any, hypothesis_id, transcript);
+    const result = await analyzeHypothesis(server, hypothesis_id, transcript);
     logger.info(result.isError ? `❌ Analysis failed for ${hypothesis_id}` : `✅ Analysis complete for ${hypothesis_id}`);
     return result as any;
   }
@@ -55,23 +59,17 @@ server.registerTool(
   'gsheets_update_hypotheses',
   {
     title: 'Update Hypotheses in Google Sheets',
-    description: 'Update hypothesis with analysis results and apply confidence-based status rules',
+    description: 'Update a hypothesis row with the JSON output from the analysis tool.',
     inputSchema: {
-      hypothesis_id: z.string().describe('Hypothesis ID to update'),
-      confidence_score: z.number().min(0).max(100).describe('Confidence score 0-100 from analysis'),
-      reasoning: z.string().describe('Analysis reasoning explaining the confidence score'),
-      relevant_quotes: z.array(z.string()).describe('Relevant quotes from transcript supporting the analysis'),
-      status_recommendation: z.enum(['VALIDATED', 'NOT_VALIDATED', 'HUMAN_JUDGMENT']).describe('Recommended status based on confidence threshold')
+      hypothesis_id: z.string().describe('Hypothesis ID to update (e.g., P1, P2)'),
+      updates_json: z.string().describe('A valid JSON string containing the columns and values to update.')
     }
   },
-  async ({ hypothesis_id, confidence_score, reasoning, relevant_quotes, status_recommendation }) => {
-    logger.info(`📝 Updating hypothesis ${hypothesis_id} in Google Sheets (${confidence_score}% confidence)`);
+  async ({ hypothesis_id, updates_json }) => {
+    logger.info(`📝 Updating hypothesis ${hypothesis_id} in Google Sheets`);
     const result = await updateHypotheses(
       hypothesis_id,
-      confidence_score,
-      reasoning,
-      relevant_quotes,
-      status_recommendation
+      updates_json
     );
     logger.info(result.isError ? `❌ Update failed for ${hypothesis_id}` : `✅ Updated ${hypothesis_id} successfully`);
     return result as any;

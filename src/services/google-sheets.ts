@@ -51,74 +51,73 @@ export class GoogleSheetsService {
     }
   }
 
-  async getHypothesis(id: string): Promise<Hypothesis> {
+  async getHeaders(): Promise<string[]> {
+    const sheetTitle = await this.findHypothesesSheetTitle();
+    const response = await this.sheets.spreadsheets.values.get({
+      spreadsheetId: this.spreadsheetId,
+      range: `${sheetTitle}!1:1`
+    });
+    const headers = response.data.values?.[0] || [];
+    return headers.map(h => String(h).trim());
+  }
+
+  async getHypothesisRow(id: string): Promise<Record<string, any>> {
     const hypotheses = await this.loadHypotheses();
     const hypothesis = hypotheses.find(h => h.ID === id);
     if (!hypothesis) {
       throw new Error(`Hypothesis ${id} not found`);
     }
-    return hypothesis;
+    return hypothesis as Record<string, any>;
   }
 
-  async updateHypothesis(id: string, updates: HypothesisUpdate): Promise<void> {
+  async updateHypothesis(id: string, updates: Record<string, any>): Promise<void> {
     try {
       const sheetTitle = await this.findHypothesesSheetTitle();
-
-      // Read complete sheet to identify headers and target row
-      const response = await this.sheets.spreadsheets.values.get({
-        spreadsheetId: this.spreadsheetId,
-        range: sheetTitle
-      });
-
-      const rows = response.data.values || [];
-      if (rows.length < 2) {
-        throw new Error('Sheet appears to be empty');
+      const headers = await this.getHeaders();
+      if (headers.length === 0) {
+        throw new Error('Could not read sheet headers.');
       }
-
-      // Identify columns
-      const headers = rows[0].map(h => (typeof h === 'string' ? h.trim() : h));
+      
       const idColumnIndex = headers.indexOf('ID');
       if (idColumnIndex === -1) {
         throw new Error('Could not find "ID" column in the sheet.');
       }
+      
+      const idColumnLetter = this.columnIndexToLetter(idColumnIndex);
+      const idColumnRange = `${sheetTitle}!${idColumnLetter}1:${idColumnLetter}`;
 
-      const dataRows = rows.slice(1);
-      const rowIndex = dataRows.findIndex(row => row[idColumnIndex] === id);
+      const response = await this.sheets.spreadsheets.values.get({
+        spreadsheetId: this.spreadsheetId,
+        range: idColumnRange
+      });
+
+      const idColumnValues = (response.data.values || []).flat();
+      const rowIndex = idColumnValues.findIndex(cell => cell === id);
+
       if (rowIndex === -1) {
         throw new Error(`Hypothesis ${id} not found in sheet`);
       }
 
-      const absoluteRowNumber = rowIndex + 2; // +1 header, +1 1-based indexing
+      const absoluteRowNumber = rowIndex + 1;
 
-      // Update in-memory row using header names for safety
-      const updatedRow = [...dataRows[rowIndex]];
+      const currentRowData = await this.getHypothesisRow(id);
+      const updatedData = { ...currentRowData, ...updates };
 
-      const setIfPresent = (headerName: string, value: unknown) => {
-        const colIndex = headers.indexOf(headerName);
-        if (colIndex !== -1 && value !== undefined) {
-          updatedRow[colIndex] = value as any;
-        }
-      };
+      // Handle special cases like percentage formatting for Google Sheets
+      if (updates['Confidence %'] && typeof updates['Confidence %'] === 'number') {
+        updatedData['Confidence %'] = updates['Confidence %'] / 100;
+      }
 
-      setIfPresent('Confidence', updates.confidence);
-      // Google Sheets percent-formatted cells expect 0-1 values.
-      const normalizedConfidencePercent =
-        typeof updates.confidencePercent === 'number'
-          ? updates.confidencePercent / 100
-          : undefined;
-      setIfPresent('Confidence %', normalizedConfidencePercent);
-      setIfPresent('Quote 1', updates.quote1);
-      setIfPresent('Quote 2', updates.quote2);
-      setIfPresent('Status', updates.status);
+      const orderedRowValues = headers.map(header => updatedData[header] ?? '');
 
-      // Compute end column letter based on header count
       const endColumnLetter = this.columnIndexToLetter(headers.length - 1);
+      const updateRange = `${sheetTitle}!A${absoluteRowNumber}:${endColumnLetter}${absoluteRowNumber}`;
 
       await this.sheets.spreadsheets.values.update({
         spreadsheetId: this.spreadsheetId,
-        range: `${sheetTitle}!A${absoluteRowNumber}:${endColumnLetter}${absoluteRowNumber}`,
-        valueInputOption: 'RAW',
-        requestBody: { values: [updatedRow] }
+        range: updateRange,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: [orderedRowValues] }
       });
 
       logger.success(`✅ Updated hypothesis ${id}`);
