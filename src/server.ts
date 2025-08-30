@@ -15,10 +15,11 @@ const server = new McpServer(
     capabilities: { 
       tools: {}, 
       logging: {},
-      sampling: {} // Add this
+      sampling: {}
     } 
   }
 );
+
 // Tool 1: Load hypotheses from Google Sheets
 server.registerTool(
   'gsheets_load_hypotheses',
