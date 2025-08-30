@@ -165,6 +165,6 @@ An MCP client (e.g., Claude Desktop) could invoke this tool like:
 
 ## Contributing
 Contributions are welcome! Please feel free to open issues or submit pull requests.
+_
 
-## License
-This project is licensed under the MIT License - see the `LICENSE` file for details. (Note: A `LICENSE` file should be created if not already present.)
+Made with ❤️ by Nasif
